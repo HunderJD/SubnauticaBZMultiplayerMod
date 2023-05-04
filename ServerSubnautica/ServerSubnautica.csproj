@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y &quot;C:\Users\User\OneDrive\Bureau\multisbz\OLDSubnauticaBZMultiplayerMod-master\ServerSubnautica\bin\Debug\net5.0&quot; &quot;D:\SteamLibrary\steamapps\common\SubnauticaZero\net5.0&quot;" />
+    <Exec Command="copy /Y &quot;C:\Users\User\OneDrive\Bureau\multisbz\SubnauticaBZMultiplayerMod\ServerSubnautica\bin\Debug\net5.0&quot; &quot;D:\SteamLibrary\steamapps\common\SubnauticaZero\net5.0&quot;" />
   </Target>
 
 </Project>
