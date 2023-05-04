@@ -136,10 +136,7 @@ class Server
         }
         else if (path.EndsWith("playerData.json"))
         {
-            File.WriteAllText(path,
-@"{
-    ""INFO"": ""this is the file where the data of all the players are stored please do not touch it""
-}");
+            File.WriteAllText(path,@"{""INFO"": ""this is the file where the data of all the players are stored please do not touch it""}");
             return JObject.Parse(File.ReadAllText(path));
         }
         else throw new Exception("The file you're trying to access does not exist, and has no default value.");
