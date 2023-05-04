@@ -71,7 +71,7 @@ class Server
         
         modFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         // Loading the user configs.
-        configFile = ServerFile(Path.Combine(modFolder, "playerData.json")); ///fichié crée on va donc le modifié
+        //configFile = ServerFile(Path.Combine(modFolder, "playerData.json")); ///fichié crée on va donc le modifié
 
 
         ///CE JOUE EN BOUCLE UNE FOIS LA MAP CHARGÉ + HOST DU SERVEUR
@@ -103,8 +103,7 @@ class Server
                         if (Newid != idParts[1])
                         {
                             lock (_lock) player_data.Add(idParts[1], new List<(string, Vector3)> { (username, new Vector3(0, 0, 0)) });
-                            AddPlayerToServerFile(player_data[idParts[1]], Path.Combine(modFolder, "playerData.json"));
-                            Console.WriteLine("New ID saved");
+                            //AddPlayerToServerFile(player_data[idParts[1]], idParts[1], Path.Combine(modFolder, "playerData.json"));
                             break;
                         }
                     }
@@ -120,7 +119,7 @@ class Server
             lock (_lock) list_clients.Add(count, client);
             Console.WriteLine($"{username} join the server, id:{playerId}");
 
-            Thread receiveThread = new Thread(new HandleClient(count).start);
+            Thread receiveThread = new Thread(new HandleClient(count, username).start);
             receiveThread.Start();
             count++;
             Thread.Sleep(5);
@@ -128,7 +127,7 @@ class Server
     }
 
 
-    public static JObject ServerFile(string path)
+    public static JObject ServerFile(string path)  ///ce joue OBLIGATOIREMENT, cest lui qui sotcke les données de chaque joueurs connecté
     {
         if (File.Exists(path))
         {
@@ -136,25 +135,27 @@ class Server
         }
         else if (path.EndsWith("playerData.json"))
         {
-            File.WriteAllText(path,@"{""INFO"": ""this is the file where the data of all the players are stored please do not touch it""}");
             return JObject.Parse(File.ReadAllText(path));
         }
         else throw new Exception("The file you're trying to access does not exist, and has no default value.");
-    }    ///ce joue OBLIGATOIREMENT, cest lui qui sotcke les données de chaque joueurs connecté
+    }
 
 
-    public static JObject AddPlayerToServerFile(List<(string, Vector3)> playerData, string path)
+    public static JObject AddPlayerToServerFile(List<(string, Vector3)> playerData, string id, string path)    ///ajouter de cette facon ->   ID:playerData
     {
-        Console.WriteLine(path);
-        return JObject.Parse(File.ReadAllText(path));
-        /*if (File.Exists(path))
+        if (File.Exists(path))
         {
-            Console.WriteLine("EXISTE");
+            Console.WriteLine("player added 1");
+            return JObject.Parse(File.ReadAllText(path));
+        }
+        else if (path.EndsWith("playerData.json"))
+        {
+            Console.WriteLine("player added 2"); 
+            string json = $@"{id}:{playerData[1]}";      ///Fonctionne -> essayons d'ajouter des variable dedans (id + playerData)
+            File.WriteAllText(path, json);
             return JObject.Parse(File.ReadAllText(path));
         }
         else throw new Exception("The file you're trying to access does not exist, and has no default value.");
-        //File.WriteAllText(path, Environment.NewLine + @" ""NEW LINE"": ""this is a new line :)""");
-        //return JObject.Parse(File.ReadAllText(path));*/
     }
 
 

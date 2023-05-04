@@ -10,12 +10,14 @@ namespace ServerSubnautica
     internal class HandleClient
     {
         int id;
+        string username;
         TcpClient client;
         NetworkStream stream;
         ClientMethod clientAction = new ClientMethod();
-        public HandleClient(int id)
+        public HandleClient(int id, string username)
         {
             this.id = id;
+            this.username = username;
             lock (Server._lock) this.client = Server.list_clients[id];
             this.stream = this.client.GetStream();
             initialize();
@@ -127,10 +129,13 @@ namespace ServerSubnautica
         public void endConnection()
         {
             lock (Server._lock) Server.list_clients.Remove(id);
-            Console.WriteLine("Someone deconnected, id: " + id);
+            //Console.WriteLine("Someone deconnected, id: " + id);
             client.Client.Shutdown(SocketShutdown.Both);
             client.Close();
-            clientAction.redirectCall(new string[] { id.ToString() }, NetworkCMD.getIdCMD("Disconnected"));
-        } 
+            Console.WriteLine(username);
+            clientAction.redirectCall(new string[] {username}, NetworkCMD.getIdCMD("Disconnected")); //message d'envoie de déconnesxion d'un joueur MAIS ne fonctionne pas jsp pk  
+            ///ca me soule je comrpend pas : je suis partie regarder zootopie : 
+            ///si ca interesse : https://hurawatch.cc/watch-movie/watch-zootopia-online-19702.5349124
+        }
     }
 }
