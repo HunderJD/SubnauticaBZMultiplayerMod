@@ -4,6 +4,7 @@ using ServerSubnautica;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -11,6 +12,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 
@@ -19,8 +21,8 @@ class Server
 {
     public static readonly object _lock = new object();
     public static readonly Dictionary<int, TcpClient> list_clients = new Dictionary<int, TcpClient>();
-    public static readonly Dictionary<string, List<(string, Vector3)>> player_data = new Dictionary<string, List<(string, Vector3)>>();
-///                                    id            name     pos 
+    public static readonly Dictionary<string, List<(string, Vector3, Quaternion)>> player_data = new Dictionary<string, List<(string, Vector3, Quaternion)>>();
+///                                    id            name     pos       rot
     public static byte[] mapBytes;
     public static string mapName;
     public static JObject configParams;
@@ -66,12 +68,9 @@ class Server
         Console.WriteLine("Listening on "+ ipAddress + ":"+port);
 
 
-        ///on crée un  fichier .json et on y ajoute le joeur avec ses data
         location = AppDomain.CurrentDomain.BaseDirectory;
-        
-        modFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        // Loading the user configs.
-        //configFile = ServerFile(Path.Combine(modFolder, "playerData.json")); ///fichié crée on va donc le modifié
+        modFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);        /// <- acces way only
+        configFile = ServerFile(Path.Combine(modFolder, "playerData.json"));
 
 
         ///CE JOUE EN BOUCLE UNE FOIS LA MAP CHARGÉ + HOST DU SERVEUR
@@ -97,16 +96,19 @@ class Server
 
                 if (idParts[0] == NetworkCMD.getIdCMD("PlayerId"))  ///On voit si le message est le bon
                 {
-                    lock (_lock) player_data.Add("ID NON VALIDE", new List<(string, Vector3)> { (idParts[2], new Vector3(0, 0, 0)) });  //sert just a lancer la boucle 'foreach'
+                    player_data.Add("ID NON VALIDE", new List<(string, Vector3, Quaternion)> { (idParts[2], new Vector3(0, 0, 0), Quaternion.Identity)});  //sert just a lancer la boucle 'foreach'
                     foreach (string Newid in player_data.Keys)
                     {
                         if (Newid != idParts[1])
                         {
-                            lock (_lock) player_data.Add(idParts[1], new List<(string, Vector3)> { (username, new Vector3(0, 0, 0)) });
-                            //AddPlayerToServerFile(player_data[idParts[1]], idParts[1], Path.Combine(modFolder, "playerData.json"));
+                            Console.WriteLine($"new player has arrived : {idParts[1]}");
+                            player_data.Add(idParts[1], new List<(string, Vector3, Quaternion)> { (idParts[2], new Vector3(0, 0, 0), Quaternion.Identity) });
+                            AddPlayerToServerFile(player_data[idParts[1]], idParts[1], Path.Combine(modFolder, "playerData.json"));
                             break;
                         }
                     }
+                    player_data.Remove("ID NON VALIDE");
+
                     playerId = idParts[1];
                     username = idParts[2];
                 }
@@ -131,35 +133,41 @@ class Server
     {
         if (File.Exists(path))
         {
-            return JObject.Parse(File.ReadAllText(path));
+            return new JObject();       ///File already exist => do nothing
         }
         else if (path.EndsWith("playerData.json"))
         {
-            return JObject.Parse(File.ReadAllText(path));
+            var newFile = File.Create(path);
+            newFile.Close();        
+            return new JObject();   ///return a new (empty) file.json
         }
         else throw new Exception("The file you're trying to access does not exist, and has no default value.");
     }
 
-
-    public static JObject AddPlayerToServerFile(List<(string, Vector3)> playerData, string id, string path)    ///ajouter de cette facon ->   ID:playerData
+    public static JObject AddPlayerToServerFile(List<(string, Vector3, Quaternion)> playerData, string id, string path)    ///ajouter de cette facon ->   ID:playerData
     {
-        if (File.Exists(path))
+        if (File.Exists(path) && path.EndsWith("playerData.json"))
         {
-            Console.WriteLine("player added 1");
-            return JObject.Parse(File.ReadAllText(path));
-        }
-        else if (path.EndsWith("playerData.json"))
-        {
-            Console.WriteLine("player added 2"); 
-            string json = $@"{id}:{playerData[1]}";      ///Fonctionne -> essayons d'ajouter des variable dedans (id + playerData)
-            File.WriteAllText(path, json);
-            return JObject.Parse(File.ReadAllText(path));
+            bool Exist = false;
+            foreach (string testID in File.ReadLines(path))
+            {
+                string simpleID = testID.Split(':')[0];
+                if(simpleID == id)
+                {
+                    Exist = true;
+                    break;
+                }
+            }
+
+            if(!Exist) //on ajoute la nouvelle id
+            {
+                string json = $@"{id}:{playerData[0]}";
+                File.AppendAllText(path, Environment.NewLine + json);
+            }
+            return new JObject();
         }
         else throw new Exception("The file you're trying to access does not exist, and has no default value.");
     }
-
-
-
 
 
     public JObject loadParam(string path)

@@ -134,8 +134,6 @@ namespace ServerSubnautica
             client.Close();
             Console.WriteLine(username);
             clientAction.redirectCall(new string[] {username}, NetworkCMD.getIdCMD("Disconnected")); //message d'envoie de déconnesxion d'un joueur MAIS ne fonctionne pas jsp pk  
-            ///ca me soule je comrpend pas : je suis partie regarder zootopie : 
-            ///si ca interesse : https://hurawatch.cc/watch-movie/watch-zootopia-online-19702.5349124
         }
     }
 }
