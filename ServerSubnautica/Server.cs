@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
@@ -72,6 +73,8 @@ class Server
         modFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);        /// <- acces way only
         configFile = ServerFile(Path.Combine(modFolder, "playerData.json"));
 
+        RememberPlayer(Path.Combine(modFolder, "playerData.json"));
+
 
         ///CE JOUE EN BOUCLE UNE FOIS LA MAP CHARGÉ + HOST DU SERVEUR
         while (true)
@@ -99,10 +102,10 @@ class Server
                     player_data.Add("ID NON VALIDE", new List<(string, Vector3, Quaternion)> { (idParts[2], new Vector3(0, 0, 0), Quaternion.Identity)});  //sert just a lancer la boucle 'foreach'
                     foreach (string Newid in player_data.Keys)
                     {
-                        if (Newid != idParts[1])
+                        if (Newid != idParts[1])        //a refaire
                         {
                             Console.WriteLine($"new player has arrived : {idParts[1]}");
-                            player_data.Add(idParts[1], new List<(string, Vector3, Quaternion)> { (idParts[2], new Vector3(0, 0, 0), Quaternion.Identity) });
+                            player_data.Add(idParts[1], new List<(string, Vector3, Quaternion)> {(idParts[2], new Vector3(0, 0, 0), Quaternion.Identity) });
                             AddPlayerToServerFile(player_data[idParts[1]], idParts[1], Path.Combine(modFolder, "playerData.json"));
                             break;
                         }
@@ -169,6 +172,39 @@ class Server
         else throw new Exception("The file you're trying to access does not exist, and has no default value.");
     }
 
+
+    public static void RememberPlayer(string path) ///connéecte le fichier 'playerData.json' au dictionnaire 'player_data'
+    {
+        if (File.Exists(path) && path.EndsWith("playerData.json"))
+        {
+            string id = "";
+            string username = "";
+            Vector3 pos = new Vector3();
+            Quaternion rot = Quaternion.Identity;
+
+            foreach (string idByLine in File.ReadAllLines(path))
+            {
+                if (idByLine.Length > 0)   ///skip the first empty line
+                {
+                    id = idByLine.Split(':')[0];
+                    username = idByLine.Split(':')[1].Split('(')[1].Split(',')[0];
+                    string posSTR = idByLine.Split('<', '>')[1];
+                    string rotSTR = idByLine.Split('{', '}')[1];
+
+                    string[] posComponents = posSTR.Split(' ');
+                    pos = new Vector3(float.Parse(posComponents[0]), float.Parse(posComponents[1]), float.Parse(posComponents[2]));
+
+                    string[] rotComponents = rotSTR.Split(' ');
+                    rot = new Quaternion(float.Parse(rotComponents[0].Split(':')[1]), float.Parse(rotComponents[1].Split(':')[1]), float.Parse(rotComponents[2].Split(':')[1]), float.Parse(rotComponents[3].Split(':')[1]));
+
+                    Console.WriteLine("player sync");
+                    player_data.Add(id, new List<(string, Vector3, Quaternion)> { (username, pos, rot) });
+                }
+            }
+            
+            Console.WriteLine(player_data.Count);
+        }
+    }
 
     public JObject loadParam(string path)
     {

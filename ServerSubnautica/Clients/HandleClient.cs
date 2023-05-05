@@ -129,11 +129,10 @@ namespace ServerSubnautica
         public void endConnection()
         {
             lock (Server._lock) Server.list_clients.Remove(id);
-            //Console.WriteLine("Someone deconnected, id: " + id);
             client.Client.Shutdown(SocketShutdown.Both);
             client.Close();
-            Console.WriteLine(username);
-            clientAction.redirectCall(new string[] {username}, NetworkCMD.getIdCMD("Disconnected")); //message d'envoie de déconnesxion d'un joueur MAIS ne fonctionne pas jsp pk  
+            Console.WriteLine($"{username} left the server");
+            clientAction.redirectCall(new string[] {username}, NetworkCMD.getIdCMD("Disconnected")); //message d'envoie de déconnesxion d'un joueur, rien ne saffiche et cest voulu
         }
     }
 }
