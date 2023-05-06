@@ -1,8 +1,12 @@
 ﻿using ClientSubnautica.MultiplayerManager.ReceiveData;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Numerics;
+using System.Reflection;
 using System.Text;
 
 namespace ServerSubnautica
@@ -132,6 +136,13 @@ namespace ServerSubnautica
             client.Client.Shutdown(SocketShutdown.Both);
             client.Close();
             Console.WriteLine($"{username} left the server");
+
+            List<(string, Vector3, Quaternion)> player_data = new List<(string, Vector3, Quaternion)>();       
+            player_data.Add(("gay test", new Vector3(), new Quaternion()));       //trouvé un moyen d'y trouver ses coordonées
+
+            //Server.OnDeconnexion(Server.linkPlayer_Client[id].ToString(), player_data); 
+            player_data.RemoveRange(0, player_data.Count);
+
             clientAction.redirectCall(new string[] {username}, NetworkCMD.getIdCMD("Disconnected")); //message d'envoie de déconnesxion d'un joueur, rien ne saffiche et cest voulu
         }
     }

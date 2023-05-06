@@ -69,8 +69,6 @@ namespace ClientSubnautica
             File.WriteAllText(Path.Combine(modFolder, "player.json"), configFile.ToString());
         }
 
-
-
         public static string GenerateID()
         {
             var tid = Process.GetCurrentProcess().Id.ToString() + ((int)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds).ToString();
