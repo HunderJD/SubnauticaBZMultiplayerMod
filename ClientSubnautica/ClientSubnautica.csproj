@@ -75,7 +75,7 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\NEWSubnauticaBZMultiplayerMod-master\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\multisbz\NEWSubnauticaBZMultiplayerMod-master\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="QModInstaller, Version=4.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -128,7 +128,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(SolutionDir)ClientSubnautica\$(OutDir)ClientSubnautica.dll" "$(SubnauticaRootPath)\QMods\SubnauticaMultiplayerMod\ClientSubnautica.dll"
+    <PostBuildEvent>copy /Y "C:\Users\User\OneDrive\Bureau\multisbz\SubnauticaBZMultiplayerMod\ClientSubnautica\obj\Debug\ClientSubnautica.dll" "D:\SteamLibrary\steamapps\common\SubnauticaZero\QMods\SubnauticaMultiplayerMod\ClientSubnautica.dll"
 
 start "" "D:\SteamLibrary\steamapps\common\SubnauticaZero\net5.0\ServerSubnautica.exe
 start "" "$(SubnauticaRootPath)\SubnauticaZero.exe"</PostBuildEvent>
