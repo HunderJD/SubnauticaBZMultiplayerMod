@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ServerSubnautica;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -18,7 +19,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
-
 
 class Server
 {
@@ -74,7 +74,7 @@ class Server
 
 
         location = AppDomain.CurrentDomain.BaseDirectory;
-        modFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);        /// <- acces way only
+        modFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);        /// acces way only
         path = Path.Combine(modFolder, "playerData.json");
 
         configFile = ServerFile(path);
@@ -101,25 +101,28 @@ class Server
             {
                 string[] parts = receivedMsg.Split(new string[] { "/END/" }, StringSplitOptions.RemoveEmptyEntries);
                 string[] idParts = parts[0].Split(':');
-
-                if (idParts[0] == NetworkCMD.getIdCMD("PlayerId"))  ///On voit si le message est le bon
+                if (idParts[0] == NetworkCMD.getIdCMD("PlayerId"))  ///On voit si le message est le bon     13131313:HunderJ
                 {
                     bool exist = false;
+                   
                     foreach (string Newid in player_data.Keys)
                     {
+                        Console.WriteLine(Newid);
                         if (Newid == idParts[1])
+                        {
                             exist = true;
-                        else
-                            exist = false;
                             break;
+                        }
+                        Console.WriteLine(exist);
                     }
-
+                    
                     if (!exist) ///only if a new id join the server
                     {
                         Console.WriteLine($"new player has arrived as : {idParts[1]}");
                         player_data.Add(idParts[1], new List<(string, Vector3, Quaternion)> { (idParts[2], new Vector3(0, 0, 0), Quaternion.Identity) });   ///default data
                         AddPlayerToServerFile(player_data[idParts[1]], idParts[1], path);
                     }
+
                     playerId = idParts[1];
                     username = idParts[2];
                     lock (_lock) linkPlayer_Client.Add(count, playerId);
@@ -132,9 +135,6 @@ class Server
 
             lock (_lock) list_clients.Add(count, client);
             Console.WriteLine($"{username} join the server");
-
-            //OnDeconnexion(playerId, new List<(string, Vector3, Quaternion)> { ("newPseudo", new Vector3(27, 8, 102), Quaternion.Identity) });
-
 
             Thread receiveThread = new Thread(new HandleClient(count, username).start);
             receiveThread.Start();
@@ -199,25 +199,49 @@ class Server
         else throw new Exception("The file you're trying to access does not exist, and has no default value.");
     }
 
-    public static JObject OnDeconnexion(string id, List<(string, Vector3, Quaternion)> playerData)  ///when player leave -> save his NEW username/pos/rot, etc etc 
+    public static void OnDeconnexion(string id, List<(string, Vector3, Quaternion)> playerData)  ///when player leave -> save his NEW username/pos/rot, etc etc 
     {
         if (File.Exists(path) && path.EndsWith("playerData.json"))
         {
-            string json = File.ReadAllText(path);
-            //JObject obj = JObject.Parse(json);
-            Console.WriteLine(json);
 
+            string[] lines = File.ReadAllLines(path);
 
+            foreach (string line in lines)
+            {
+                if (line.Length > 0)
+                {
+                    JObject obj = JObject.Parse(line);
+                    string playerId = (string)obj["id"];
+
+                    if (playerId == id) // si l'id correspond à celui que vous cherchez
+                    {
+                        JToken data = obj["data"];
+                        ///change value : 
+                        data[0] = playerData[0].Item1;  ///username
+                        data[1][0] = playerData[0].Item2.X; ///posX
+                        data[1][1] = playerData[0].Item2.Y; ///posY
+                        data[1][2] = playerData[0].Item2.Z; ///posZ
+                        data[2]["X"] = playerData[0].Item3.X;   ///rotX 
+                        data[2]["Y"] = playerData[0].Item3.Y;   ///rotY
+                        data[2]["Z"] = playerData[0].Item3.Z;   ///rotZ
+                        data[2]["W"] = playerData[0].Item3.W;   ///rotW
+
+                        int lineIndex = Array.IndexOf(lines, line);
+                        lines[lineIndex] = $"{{\"id\":\"{id}\",\"data\":[\"{data[0]}\",[{string.Join(",", ((JArray)data[1]).Select(x => ((float)x).ToString("0.0")))}],{{\"X\":{(float)data[2]["X"]},\"Y\":{(float)data[2]["Y"]},\"Z\":{(float)data[2]["Z"]},\"W\":{(float)data[2]["W"]}]}}}}";
+                        File.WriteAllLines(path, lines);
+                        break;
+                    }
+                    else
+                        Console.WriteLine("no id assigned");
+                }
+            }
         }
         else throw new Exception("The file you're trying to access does not exist, and has no default value.");
-
-        return new JObject();
     }
-    
 
-   
-    public static void RememberPlayer(string path)  ///connéecte le fichier 'playerData.json' au dictionnaire 'player_data'
+    public static void RememberPlayer(string path)  ///connecter le fichier 'playerData.json' au dictionnaire 'player_data'
     {
+        Console.WriteLine("call");
         if (File.Exists(path) && path.EndsWith("playerData.json"))
         {
             string id = "";
@@ -243,7 +267,9 @@ class Server
                 JObject rotObj = (JObject)data[2];///Read rotation 
                 rot = new Quaternion((float)rotObj["X"], (float)rotObj["Y"], (float)rotObj["Z"], (float)rotObj["W"]);
 
+                Console.WriteLine("player added");
                 player_data.Add(id, new List<(string, Vector3, Quaternion)> { (username, pos, rot) });
+                Console.WriteLine(id);
             }
         }
     }

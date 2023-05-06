@@ -138,9 +138,9 @@ namespace ServerSubnautica
             Console.WriteLine($"{username} left the server");
 
             List<(string, Vector3, Quaternion)> player_data = new List<(string, Vector3, Quaternion)>();       
-            player_data.Add(("gay test", new Vector3(), new Quaternion()));       //trouvé un moyen d'y trouver ses coordonées
+            player_data.Add((username, new Vector3(), new Quaternion()));       //trouvé un moyen d'y trouver ses coordonées
 
-            //Server.OnDeconnexion(Server.linkPlayer_Client[id].ToString(), player_data); 
+            Server.OnDeconnexion(Server.linkPlayer_Client[id].ToString(), player_data); 
             player_data.RemoveRange(0, player_data.Count);
 
             clientAction.redirectCall(new string[] {username}, NetworkCMD.getIdCMD("Disconnected")); //message d'envoie de déconnesxion d'un joueur, rien ne saffiche et cest voulu
