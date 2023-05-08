@@ -133,6 +133,8 @@ class Server
             lock (_lock) list_clients.Add(count, client);
             Console.WriteLine($"{username} join the server");
 
+
+
             Thread receiveThread = new Thread(new HandleClient(count, username).start);
             receiveThread.Start();
             count++;
@@ -201,7 +203,6 @@ class Server
         if (File.Exists(path) && path.EndsWith("playerData.json"))
         {
             string[] lines = File.ReadAllLines(path);
-
             foreach (string line in lines)
             {
                 if (line.Length > 0)

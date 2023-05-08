@@ -17,7 +17,7 @@ namespace ClientSubnautica.MultiplayerManager
         public void NewId(string[] param)
         {
             FunctionToClient.addPlayer(int.Parse(param[0]));
-            ErrorMessage.AddMessage("Player " + param[0] + " joined !");
+            ErrorMessage.AddMessage("Player " + MainPatcher.username + " joined !");
         }
         public void AllId(string[] param)
         {
@@ -42,7 +42,7 @@ namespace ClientSubnautica.MultiplayerManager
             }
             //ApplyPatches.posLastLoop.TryRemove(int.Parse(id), out val2);
             //ApplyPatches.lastPos.TryRemove(int.Parse(id), out val3);
-            ErrorMessage.AddMessage("Player " + param[0] + " disconnected.");
+            ErrorMessage.AddMessage("Player " + MainPatcher.username + " disconnected.");
         }
 
         public void SpawnItem(string[] param)

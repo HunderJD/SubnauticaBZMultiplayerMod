@@ -137,6 +137,13 @@ namespace ServerSubnautica
             client.Close();
             Console.WriteLine($"{username} left the server");
 
+            //on récuperer les coordonés du jouerus grace au functionsmanager.cs
+
+
+
+
+
+
             List<(string, Vector3, Quaternion)> player_data = new List<(string, Vector3, Quaternion)>();       
             player_data.Add((username, new Vector3(), new Quaternion()));       //trouvé un moyen d'y trouver ses coordonées
 
