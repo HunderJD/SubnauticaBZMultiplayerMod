@@ -134,7 +134,6 @@ class Server
             Console.WriteLine($"{username} join the server");
 
 
-
             Thread receiveThread = new Thread(new HandleClient(count, username).start);
             receiveThread.Start();
             count++;
@@ -215,16 +214,16 @@ class Server
                         JToken data = obj["data"];
                         ///change value : 
                         data[0] = playerData[0].Item1;  ///username
-                        data[1][0] = playerData[0].Item2.X; ///posX
-                        data[1][1] = playerData[0].Item2.Y; ///posY
-                        data[1][2] = playerData[0].Item2.Z; ///posZ
-                        data[2]["X"] = playerData[0].Item3.X;   ///rotX 
-                        data[2]["Y"] = playerData[0].Item3.Y;   ///rotY
-                        data[2]["Z"] = playerData[0].Item3.Z;   ///rotZ
-                        data[2]["W"] = playerData[0].Item3.W;   ///rotW
+                        data[1][0] = playerData[0].Item2.X.ToString().Replace(',', '.'); ; ///posX
+                        data[1][1] = playerData[0].Item2.Y.ToString().Replace(',', '.'); ; ///posY
+                        data[1][2] = playerData[0].Item2.Z.ToString().Replace(',', '.'); ; ///posZ
+                        data[2]["X"] = playerData[0].Item3.X.ToString().Replace(',', '.'); ;   ///rotX 
+                        data[2]["Y"] = playerData[0].Item3.Y.ToString().Replace(',', '.'); ;   ///rotY
+                        data[2]["Z"] = playerData[0].Item3.Z.ToString().Replace(',', '.'); ;   ///rotZ
+                        data[2]["W"] = playerData[0].Item3.W.ToString().Replace(',', '.'); ;   ///rotW
 
                         int lineIndex = Array.IndexOf(lines, line);
-                        lines[lineIndex] = $"{{\"id\":\"{id}\",\"data\":[\"{data[0]}\",[{data[1][0]},{data[1][1]},{data[1][2]}],{{\"X\":{data[2]["X"]},\"Y\":{data[2]["Y"]},\"Z\":{data[2]["Z"]},\"W\":{data[2]["W"]}}}]}}";
+                        lines[lineIndex] = $"{{\"id\":\"{id}\",\"data\":[\"{data[0]}\",[{data[1][0].ToString().Replace(";", ".")},{data[1][1].ToString().Replace(";", ".")},{data[1][2].ToString().Replace(";", ".")}],{{\"X\":{data[2]["X"].ToString().Replace(";", ".")},\"Y\":{data[2]["Y"].ToString().Replace(";", ".")},\"Z\":{data[2]["Z"].ToString().Replace(";", ".")},\"W\":{data[2]["W"].ToString().Replace(";", ".")}}}]}}";
                         File.WriteAllLines(path, lines);
                         break;
                     }

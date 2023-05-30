@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using UnityEngine;
 
 namespace ClientSubnautica.ClientManager
 {
@@ -14,7 +15,6 @@ namespace ClientSubnautica.ClientManager
                 pickupable.gameObject.GetComponent<UniqueGuid>().guid = System.Guid.NewGuid().ToString();
 
                 SendOnDrop.send(pickupable);
-                ErrorMessage.AddMessage("TEST TEST TEST TEST TEST");
             }
         }
     }

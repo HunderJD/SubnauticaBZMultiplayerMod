@@ -146,6 +146,7 @@ namespace ClientSubnautica
                     GameObject.Find("Menu canvas/Panel/MainMenu/RightSide/MultiplayerMenu").SetActive(target == "SavedGames");
                     GameObject.Find("Menu canvas/Panel/MainMenu/RightSide/NicknameMenu").SetActive(target == "SavedGames");
                 }
+
             }
         }
     }

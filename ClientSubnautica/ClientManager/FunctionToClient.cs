@@ -12,12 +12,6 @@ namespace ClientSubnautica.ClientManager
         {
             var pos = new Vector3((float)-294.3636, (float)17.02644, (float)252.9224);
             GameObject body = GameObject.Find("player_view_female");
-            
-            //Beacon beacon = new Beacon();
-            //beacon.transform.parent = body.transform;
-            //beacon.label = username;
-            //BeaconManager.Add(beacon);
-
 
             body.GetComponentInParent<Player>().staticHead.shadowCastingMode = ShadowCastingMode.On;
             lock (RedirectData.m_lockPlayers)

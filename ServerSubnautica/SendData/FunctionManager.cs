@@ -8,7 +8,7 @@ namespace ServerSubnautica
         ClientMethod client = new ClientMethod();
         public void WorldPosition(string[] param)
         {
-            client.broadcast(NetworkCMD.getIdCMD("WorldPosition") + ":" + param[0] + ";" + param[1] + ";" + param[2] + ";" + param[3] + ";" + param[4] + ";" + param[5] + ";" + param[6] +";" + param[7] + "/END/", int.Parse(param[0]));
+            client.broadcast(NetworkCMD.getIdCMD(" ") + ":" + param[0] + ";" + param[1] + ";" + param[2] + ";" + param[3] + ";" + param[4] + ";" + param[5] + ";" + param[6] +";" + param[7] + "/END/", int.Parse(param[0]));
             //Console.WriteLine("id: "+ param[0] + " at position: " + param[1]+";"+param[2]+";"+param[3] + " rotation: "+ param[4] + ";" + param[5] + ";" + param[6] + ";" + param[7]);
             ///on sait que ça fonctionne tkt
         }
@@ -36,11 +36,9 @@ namespace ServerSubnautica
             client.broadcast(NetworkCMD.getIdCMD("timePassed") + ":" + param[1]+"/END/", int.Parse(param[0]));
         }
         
-        public void Disconnected(string[] param)
+        public void Disconnected(string[] param)    //quand je me deconnecte : ...
         {
-            client.broadcast(NetworkCMD.getIdCMD("Disconnected") + ":" + param[0]+"/END/", int.Parse(param[0]));
-            Console.WriteLine($"{param[0]} just disconnected");
+            client.broadcast(NetworkCMD.getIdCMD("Disconnected") + ":" + param[1]+"/END/", int.Parse(param[0]));
         }
-
     }
 }

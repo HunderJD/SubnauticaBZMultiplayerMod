@@ -15,6 +15,9 @@ namespace ServerSubnautica
     {
         int id;
         string username;
+        
+        string data;
+
         TcpClient client;
         NetworkStream stream;
         ClientMethod clientAction = new ClientMethod();
@@ -53,6 +56,7 @@ namespace ServerSubnautica
             string storyVersion = Server.gameInfo["storyVersion"].ToString();
 
             byte[] test2 = Encoding.ASCII.GetBytes(session + "$" + changeSet + "$" + gameMode + "$" + storyVersion);
+
 
             stream.Write(test2, 0, test2.Length);
 
@@ -97,11 +101,12 @@ namespace ServerSubnautica
 
                 byte_count = this.stream.Read(buffer, 0, buffer.Length);
 
-                string data = Encoding.ASCII.GetString(buffer, 0, byte_count);
+                data = Encoding.ASCII.GetString(buffer, 0, byte_count);
+
                 if (!data.Contains("/END/"))
                     continue;
-
                 string[] commands = data.Split(new string[] { "/END/" }, StringSplitOptions.None);
+
                 foreach (var command in commands)
                 {
                     if (command.Length <= 1)
@@ -116,6 +121,7 @@ namespace ServerSubnautica
                         }
 
                         var tempList = command.Substring(command.IndexOf(":") + 1).Split(';').ToList();
+
                         if (idCMD != NetworkCMD.getIdCMD("Disconnected"))
                             tempList.Insert(0, id.ToString());
                         string[] param = tempList.ToArray();
@@ -132,23 +138,45 @@ namespace ServerSubnautica
 
         public void endConnection()
         {
+            List<(string, Vector3, Quaternion)> player_data = new List<(string, Vector3, Quaternion)>();
+            Vector3 pos = new Vector3();
+            Quaternion rot = new Quaternion();
+
+            if (data.Contains("/END/"))
+            {
+                try
+                {
+                    string[] parts = data.Split(new string[] { "/END/" }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] idParts = parts[0].Split(':');
+
+                    if (idParts[0] == NetworkCMD.getIdCMD("Disconnected"))
+                    {
+                        string[] t = idParts[1].Split(";");
+
+                        float posX = float.Parse(t[0]);
+                        float posY = float.Parse(t[1]);
+                        float posZ = float.Parse(t[2]);
+                        pos = new Vector3(posX, posY, posZ);
+
+                        float rotX = float.Parse(t[3]);
+                        float rotY = float.Parse(t[4]);
+                        float rotZ = float.Parse(t[5]);
+                        float rotW = float.Parse(t[6]);
+                        rot = new Quaternion(rotX, rotY, rotZ, rotW);
+                    }
+                }
+                catch{ }
+            }
+
+            player_data.Add((username, pos, rot));
+            Server.OnDeconnexion(Server.linkPlayer_Client[id].ToString(), player_data); ///save to .json file 
+            player_data.RemoveRange(0, player_data.Count);
+
+
             lock (Server._lock) Server.list_clients.Remove(id);
             client.Client.Shutdown(SocketShutdown.Both);
             client.Close();
             Console.WriteLine($"{username} left the server");
-
-            //on récuperer les coordonés du jouerus grace au functionsmanager.cs
-
-
-
-
-
-
-            List<(string, Vector3, Quaternion)> player_data = new List<(string, Vector3, Quaternion)>();       
-            player_data.Add((username, new Vector3(), new Quaternion()));       //trouvé un moyen d'y trouver ses coordonées
-
-            Server.OnDeconnexion(Server.linkPlayer_Client[id].ToString(), player_data); 
-            player_data.RemoveRange(0, player_data.Count);
 
             clientAction.redirectCall(new string[] {username}, NetworkCMD.getIdCMD("Disconnected")); //message d'envoie de déconnesxion d'un joueur, rien ne saffiche et cest voulu
         }

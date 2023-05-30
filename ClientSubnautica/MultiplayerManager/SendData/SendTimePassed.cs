@@ -13,7 +13,7 @@ namespace ClientSubnautica.MultiplayerManager.SendData
             byte[] msgresponse;
             msgresponse = Encoding.ASCII.GetBytes(NetworkCMD.getIdCMD("timePassed") + ":" + DayNightCycle.main.timePassedAsFloat.ToString()+"/END/");
             ns.Write(msgresponse, 0, msgresponse.Length);
-            //ns.Close();
+            ns.Close();
         }
     }
 }

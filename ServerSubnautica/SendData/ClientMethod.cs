@@ -11,7 +11,6 @@ namespace ServerSubnautica
         public void broadcast(string data, int id)
         {
             byte[] buffer = Encoding.ASCII.GetBytes(data);
-            //Console.WriteLine("Sending data :"+data);
             lock (Server._lock)
             {
                 foreach (var c in Server.list_clients)
@@ -20,7 +19,6 @@ namespace ServerSubnautica
                     {
                         //Console.WriteLine("Sending position to id "+id);
                         NetworkStream stream = c.Value.GetStream();
-                        stream.Write(buffer, 0, buffer.Length);
                     }
                 }
             }
@@ -42,6 +40,8 @@ namespace ServerSubnautica
             }
         }
 
+
+        //avant cela, en effet le message ne lis AUCUN parametre
         public void redirectCall(string[] param, string id)
         {
             try

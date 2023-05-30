@@ -1,4 +1,5 @@
-﻿using ClientSubnautica.MultiplayerManager.ReceiveData;
+﻿using ClientSubnautica.ClientManager;
+using ClientSubnautica.MultiplayerManager.ReceiveData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,15 +15,15 @@ namespace ClientSubnautica.MultiplayerManager.SendData
         public static void start(TcpClient client2)
         {
             NetworkStream ns2 = client2.GetStream();
+            string x = "";
+            string y = "";
+            string z = "";
+            string rotx = "";
+            string roty = "";
+            string rotz = "";
+            string rotw = "";
             try
             {
-                string x = "";
-                string y = "";
-                string z = "";
-                string rotx = "";
-                string roty = "";
-                string rotz = "";
-                string rotw = "";
                 string rotxTemp = "";
                 string rotyTemp = "";
                 string rotzTemp = "";
@@ -62,9 +63,9 @@ namespace ClientSubnautica.MultiplayerManager.SendData
             }
             catch
             {
-                byte[] test = Encoding.ASCII.GetBytes(NetworkCMD.getIdCMD("Disconnected") + ":/END/");
+                byte[] msgresponse = Encoding.ASCII.GetBytes(NetworkCMD.getIdCMD("Disconnected") + ":" + x + ";" + y + ";" + z + ";" + rotx + ";" + roty + ";" + rotz + ";" + rotw + "/END/");
 
-                ns2.Write(test, 0, test.Length);
+                ns2.Write(msgresponse, 0, msgresponse.Length);
                 client2.Client.Shutdown(SocketShutdown.Send);
                 ns2.Close();
                 client2.Close();
