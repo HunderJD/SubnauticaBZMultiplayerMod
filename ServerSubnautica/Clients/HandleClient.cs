@@ -31,6 +31,8 @@ namespace ServerSubnautica
         } 
         public void initialize()
         {
+
+            //REAL CODE
             int bufferSize = 1024;
 
             byte[] dataLength = BitConverter.GetBytes(Server.mapBytes.Length);
@@ -40,7 +42,7 @@ namespace ServerSubnautica
             int bytesSent = 0;
             int bytesLeft = Server.mapBytes.Length;
 
-            while (bytesLeft > 0)
+            while (bytesLeft > 0)       ///Send map to player(s)
             {
                 int curDataSize = Math.Min(bufferSize, bytesLeft);
 
@@ -56,7 +58,6 @@ namespace ServerSubnautica
             string storyVersion = Server.gameInfo["storyVersion"].ToString();
 
             byte[] test2 = Encoding.ASCII.GetBytes(session + "$" + changeSet + "$" + gameMode + "$" + storyVersion);
-
 
             stream.Write(test2, 0, test2.Length);
 
@@ -106,7 +107,6 @@ namespace ServerSubnautica
                 if (!data.Contains("/END/"))
                     continue;
                 string[] commands = data.Split(new string[] { "/END/" }, StringSplitOptions.None);
-
                 foreach (var command in commands)
                 {
                     if (command.Length <= 1)

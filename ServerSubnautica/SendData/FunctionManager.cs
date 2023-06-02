@@ -34,6 +34,7 @@ namespace ServerSubnautica
         public void timePassed(string[] param)
         {
             client.broadcast(NetworkCMD.getIdCMD("timePassed") + ":" + param[1]+"/END/", int.Parse(param[0]));
+            Console.WriteLine("weather = " + param[1]);
         }
         
         public void Disconnected(string[] param)    //quand je me deconnecte : ...

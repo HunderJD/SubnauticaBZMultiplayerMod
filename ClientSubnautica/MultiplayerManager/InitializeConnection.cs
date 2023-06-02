@@ -19,6 +19,7 @@ namespace ClientSubnautica.MultiplayerManager
     {
         public static TcpClient client = new TcpClient();
         public static bool threadStarted = false;
+        public static string outDirectoryPath;
 
         public void start(string ip)    //Ici égale a 127.0.0.1:5000
         {
@@ -34,10 +35,10 @@ namespace ClientSubnautica.MultiplayerManager
             byte[] data = downloadMap(ns);
             ErrorMessage.AddMessage("Downloading map... 100%");
 
-            string outDirectoryPath = importMap(data);
+            //je cherche a quoi cela sert 
+            outDirectoryPath = importMap(data);
 
             ErrorMessage.AddMessage("Map downloaded !");
-
 
             byte[] receivedBytes2 = new byte[1024];
             int byte_count;
@@ -47,9 +48,10 @@ namespace ClientSubnautica.MultiplayerManager
             string message2 = Encoding.ASCII.GetString(receivedBytes2, 0, byte_count);
             string[] arr = message2.Split('$');
 
+            deleteMap();
+
             if (arr != null)
             {
-
                 GameModePresetId gameMode = GameModePresetId.Survival;
                 switch (arr[2])
                 {
@@ -68,6 +70,8 @@ namespace ClientSubnautica.MultiplayerManager
                 }
 
                 ErrorMessage.AddMessage("Loading map ...");
+
+                //ce gros pavé CHARGE LA MAP mdr
                 CoroutineHost.StartCoroutine(LoadMap.loadMap(uGUI_MainMenu.main, outDirectoryPath, arr[0], arr[1], gameMode, new GameOptions(),arr[3], returnValue =>
                     {
 
@@ -90,6 +94,7 @@ namespace ClientSubnautica.MultiplayerManager
         {
             byte[] fileSizeBytes = new byte[4];
             int bytes = ns.Read(fileSizeBytes, 0, 4);
+            
             int dataLength = BitConverter.ToInt32(fileSizeBytes, 0);
 
             int bytesLeft = dataLength;
@@ -110,9 +115,9 @@ namespace ClientSubnautica.MultiplayerManager
                 bytesLeft -= curDataSize;
             }
             return data;
-        }
+        }   //Donwload les DATA de la map
 
-        public static string importMap(byte[] data)
+        public static string importMap(byte[] data) //crée une copie de la map
         {
             string[] outPath = { MainPatcher.location, "SNAppData", "SavedGames", "MultiplayerSave" };
             if (PlatformServicesEpic.IsPresent())
@@ -132,6 +137,13 @@ namespace ClientSubnautica.MultiplayerManager
             File.Delete(outZipPath);
 
             return outDirectoryPath;
+        }   //transforme ces data en fichié de jeu que le client peut lire
+
+        public static void deleteMap()  //je delete le serveur pour eviuté que le joueur ne l'ai dasn son historique de partie
+        {
+            string path = outDirectoryPath;
+            ErrorMessage.AddMessage(outDirectoryPath);
+            //ErrorMessage.AddMessage(path);
         }
     }
 }

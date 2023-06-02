@@ -19,6 +19,7 @@ namespace ClientSubnautica.MultiplayerManager
             FunctionToClient.addPlayer(int.Parse(param[0]));
             ErrorMessage.AddMessage("Player " + MainPatcher.username + " joined !");
         }
+
         public void AllId(string[] param)
         {
             foreach (var id in param)

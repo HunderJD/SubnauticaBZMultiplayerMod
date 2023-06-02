@@ -64,6 +64,7 @@ class Server
 
         File.Delete(mapPath);
 
+        ///Hosting game
         string ipAddress = configParams["ipAddress"].ToString();
         int port = int.Parse(configParams["port"].ToString());
         int count = 1;
@@ -99,9 +100,9 @@ class Server
                 continue;
             try
             {
+                Console.WriteLine(receivedMsg);
                 string[] parts = receivedMsg.Split(new string[] { "/END/" }, StringSplitOptions.RemoveEmptyEntries);
                 string[] idParts = parts[0].Split(':');
-
                 if (idParts[0] == NetworkCMD.getIdCMD("PlayerId"))  ///On voit si le message est le bon
                 {
                     bool exist = false;

@@ -23,7 +23,7 @@ namespace ClientSubnautica.MultiplayerManager
             {
                 lock (m_lockRequests)
                 {
-                    foreach (var item in receivedRequestsQueue)
+                    foreach (var item in receivedRequestsQueue) //How can i activate this ? 
                     {
                         if (item.Contains("/END/"))
                         {
@@ -34,6 +34,7 @@ namespace ClientSubnautica.MultiplayerManager
                                 {
                                     if (command.Length > 1)
                                     {
+                                        ErrorMessage.AddMessage(command);
                                         string idCMD = command.Split(':')[0];
                                         string[] param;
                                         param = command.Substring(command.IndexOf(":") + 1).Split(';');
