@@ -48,8 +48,6 @@ namespace ClientSubnautica.MultiplayerManager
             string message2 = Encoding.ASCII.GetString(receivedBytes2, 0, byte_count);
             string[] arr = message2.Split('$');
 
-            deleteMap();
-
             if (arr != null)
             {
                 GameModePresetId gameMode = GameModePresetId.Survival;
@@ -87,7 +85,6 @@ namespace ClientSubnautica.MultiplayerManager
                         threadStarted = true;
                     }));
             }
-            
         }
 
         public static byte[] downloadMap(NetworkStream ns)
@@ -139,11 +136,29 @@ namespace ClientSubnautica.MultiplayerManager
             return outDirectoryPath;
         }   //transforme ces data en fichié de jeu que le client peut lire
 
+
+        private static string getPath() //j'essaye d'obtenir le "path" de la map "MultiplayerSave"
+        {
+            string[] outPath = {MainPatcher.location, "SNAppData", "SavedGames", "MultiplayerSave" };
+            if (PlatformServicesEpic.IsPresent())
+            {
+                outPath[0] = Application.persistentDataPath;
+                outPath[1] = "SubnauticaZero";
+            }
+            string outDirectoryPath = Path.Combine(outPath);
+
+
+            return outDirectoryPath;
+        }
+
+
         public static void deleteMap()  //je delete le serveur pour eviuté que le joueur ne l'ai dasn son historique de partie
         {
-            string path = outDirectoryPath;
-            ErrorMessage.AddMessage(outDirectoryPath);
-            //ErrorMessage.AddMessage(path);
+            string path = getPath();
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+            }
         }
     }
 }

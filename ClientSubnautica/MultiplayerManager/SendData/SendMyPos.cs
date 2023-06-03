@@ -69,6 +69,8 @@ namespace ClientSubnautica.MultiplayerManager.SendData
                 client2.Client.Shutdown(SocketShutdown.Send);
                 ns2.Close();
                 client2.Close();
+
+                InitializeConnection.deleteMap(); //le code est-il joué ?
             }
         }
     }

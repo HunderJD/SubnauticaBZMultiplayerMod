@@ -100,7 +100,6 @@ class Server
                 continue;
             try
             {
-                Console.WriteLine(receivedMsg);
                 string[] parts = receivedMsg.Split(new string[] { "/END/" }, StringSplitOptions.RemoveEmptyEntries);
                 string[] idParts = parts[0].Split(':');
                 if (idParts[0] == NetworkCMD.getIdCMD("PlayerId"))  ///On voit si le message est le bon
