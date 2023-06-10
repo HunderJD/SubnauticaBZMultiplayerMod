@@ -7,7 +7,9 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ServerSubnautica
 {
@@ -31,10 +33,7 @@ namespace ServerSubnautica
         } 
         public void initialize()
         {
-
-            //REAL CODE
             int bufferSize = 1024;
-
             byte[] dataLength = BitConverter.GetBytes(Server.mapBytes.Length);
 
             stream.Write(dataLength, 0, 4);
@@ -51,6 +50,7 @@ namespace ServerSubnautica
                 bytesSent += curDataSize;
                 bytesLeft -= curDataSize;
             }
+
 
             string session = Server.gameInfo["session"].ToString();
             string changeSet = Server.gameInfo["changeSet"].ToString();
@@ -138,6 +138,8 @@ namespace ServerSubnautica
 
         public void endConnection()
         {
+            SaveMap();
+
             List<(string, Vector3, Quaternion)> player_data = new List<(string, Vector3, Quaternion)>();
             Vector3 pos = new Vector3();
             Quaternion rot = new Quaternion();
@@ -179,6 +181,51 @@ namespace ServerSubnautica
             Console.WriteLine($"{username} left the server");
 
             clientAction.redirectCall(new string[] {username}, NetworkCMD.getIdCMD("Disconnected")); //message d'envoie de déconnesxion d'un joueur, rien ne saffiche et cest voulu
+        }
+
+        public void SaveMap()    //play this function at each disconnection AND each X minutes
+        {
+            string saveMapPath = Server.mapPath.Split(".zip")[0];
+            string tempPath = "D:\\SteamLibrary\\steamapps\\common\\SubnauticaZero\\net5.0\\test";
+
+            if (Directory.Exists(tempPath))
+            {
+                Console.WriteLine("path exist");
+
+                //on joue le code pour save
+                byte[] fileSizeBytes = new byte[4];
+                int bytes = stream.Read(fileSizeBytes, 0, 4);
+                Console.WriteLine("bytes = " + bytes);
+
+                int dataLength = BitConverter.ToInt32(fileSizeBytes, 0);
+                //Console.WriteLine("dataLenght = " + dataLength);
+
+                int bytesLeft = dataLength;
+                byte[] data = new byte[dataLength];
+                //Console.WriteLine("new data  = " + data.Length);
+
+
+                int bufferSize = 1024;
+                int bytesRead = 0;
+
+                while (bytesLeft > 0)
+                {
+                    int curDataSize = Math.Min(bufferSize, bytesLeft);
+                    if (client.Available < curDataSize)
+                        curDataSize = client.Available; //This saved me
+
+                    bytes = stream.Read(data, bytesRead, curDataSize);
+                    //Console.WriteLine("bytes  = " + bytes.ToString());
+
+                    bytesRead += curDataSize;
+                    bytesLeft -= curDataSize;
+                }
+                Console.WriteLine("ENDING  data  = " + data.Length);
+
+                //File.WriteAllBytes(tempPath, data);
+            }
+            else
+                Console.WriteLine("this file doesn't exist");
         }
     }
 }

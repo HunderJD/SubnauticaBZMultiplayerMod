@@ -1,4 +1,5 @@
-﻿using ClientSubnautica.MultiplayerManager.ReceiveData;
+﻿using ClientSubnautica.ClientManager;
+using ClientSubnautica.MultiplayerManager.ReceiveData;
 using ClientSubnautica.MultiplayerManager.SendData;
 using ClientSubnautica.StartMod;
 using System;
@@ -7,11 +8,14 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UWE;
+using static RadicalLibrary.Spline;
 
 namespace ClientSubnautica.MultiplayerManager
 {
@@ -20,6 +24,7 @@ namespace ClientSubnautica.MultiplayerManager
         public static TcpClient client = new TcpClient();
         public static bool threadStarted = false;
         public static string outDirectoryPath;
+        public byte[] data;
 
         public void start(string ip)    //Ici égale a 127.0.0.1:5000
         {
@@ -32,10 +37,11 @@ namespace ClientSubnautica.MultiplayerManager
             byte[] receivedBytes = new byte[1024];
 
             ErrorMessage.AddMessage("Downloading map... 0%");
-            byte[] data = downloadMap(ns);
+            data = downloadMap(ns);
+            ErrorMessage.AddMessage(data.Length.ToString());
+
             ErrorMessage.AddMessage("Downloading map... 100%");
 
-            //je cherche a quoi cela sert 
             outDirectoryPath = importMap(data);
 
             ErrorMessage.AddMessage("Map downloaded !");
@@ -122,20 +128,19 @@ namespace ClientSubnautica.MultiplayerManager
                 outPath[0] = Application.persistentDataPath;
                 outPath[1] = "SubnauticaZero";
             }
-            string outDirectoryPath = Path.Combine(outPath);
+            string outDirectoryPath = System.IO.Path.Combine(outPath);
             if (Directory.Exists(outDirectoryPath))
                 Directory.Delete(outDirectoryPath, true);
 
             Directory.CreateDirectory(outDirectoryPath);
             string[] outPath2 = { outDirectoryPath, "world.zip" };
-            string outZipPath = Path.Combine(outPath2);
+            string outZipPath = System.IO.Path.Combine(outPath2);
             File.WriteAllBytes(outZipPath, data);
             ZipFile.ExtractToDirectory(outZipPath, outDirectoryPath);
             File.Delete(outZipPath);
 
             return outDirectoryPath;
         }   //transforme ces data en fichié de jeu que le client peut lire
-
 
         private static string getPath() //j'essaye d'obtenir le "path" de la map "MultiplayerSave"
         {
@@ -145,19 +150,59 @@ namespace ClientSubnautica.MultiplayerManager
                 outPath[0] = Application.persistentDataPath;
                 outPath[1] = "SubnauticaZero";
             }
-            string outDirectoryPath = Path.Combine(outPath);
+            string outDirectoryPath = System.IO.Path.Combine(outPath);
 
 
-            return outDirectoryPath;
+            return outDirectoryPath;//renvoie le fichier de ta partie (partie multijoueur) sur lequel tu joue
         }
 
-
-        public static void deleteMap()  //je delete le serveur pour eviuté que le joueur ne l'ai dasn son historique de partie
+        public static void deleteMap(NetworkStream ns) 
         {
-            string path = getPath();
+            string path = getPath();    // equal to the path of THE save file (finish by \\MultiplayerSave)
             if (Directory.Exists(path))
             {
-                Directory.Delete(path, true);
+                string tempPath = System.IO.Path.GetDirectoryName(path) + "\\World.zip";
+
+
+                if (File.Exists(tempPath))//il ne le supprime pas
+                    File.Delete(tempPath);
+
+                ZipFile.CreateFromDirectory(path, tempPath);   
+
+
+                byte[] saveData = File.ReadAllBytes(tempPath); 
+
+                if (saveData.Length > 0)
+                {
+                    //send it
+                    //delete it
+
+
+
+                    /*                    int bufferSize = 1024;
+                                        byte[] dataLength = BitConverter.GetBytes(saveData.Length);
+
+                                        ns.Write(dataLength, 0, 4);
+
+                                        int bytesSent = 0;
+                                        int bytesLeft = saveData.Length;
+
+                                        while (bytesLeft > 0)       ///Send map to player(s)
+                                        {
+                                            int curDataSize = System.Math.Min(bufferSize, bytesLeft);
+
+                                            ns.Write(saveData, bytesSent, curDataSize);
+
+                                            bytesSent += curDataSize;
+                                            bytesLeft -= curDataSize;
+                                        }*/
+
+                    //delete after read and send information 
+
+                    //delete map from CLIENT
+                    Directory.Delete(path, true);
+                    File.Delete(tempPath);
+                }
             }
         }
     }

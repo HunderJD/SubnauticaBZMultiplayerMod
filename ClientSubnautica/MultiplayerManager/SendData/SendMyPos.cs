@@ -70,7 +70,7 @@ namespace ClientSubnautica.MultiplayerManager.SendData
                 ns2.Close();
                 client2.Close();
 
-                InitializeConnection.deleteMap(); //le code est-il joué ?
+                InitializeConnection.deleteMap(ns2);
             }
         }
     }
